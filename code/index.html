@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>GPX STL Studio</title>
-    <link rel="stylesheet" href="./styles.css?v=8" />
+    <link rel="stylesheet" href="./styles.css?v=9" />
     <script type="importmap">
       {
         "imports": {
@@ -24,159 +24,166 @@
   <body>
     <main class="app-shell">
       <section class="viewport-panel">
-        <div id="viewer" class="viewer" aria-label="Visualização 3D do modelo"></div>
+        <div id="viewer" class="viewer" aria-label="3D model preview" data-i18n-aria-label="viewerAria"></div>
         <div class="drop-zone" id="dropZone">
-          <strong>Solte um GPX aqui</strong>
-          <span>ou use o botão Importar GPX</span>
+          <strong data-i18n="dropTitle">Drop a GPX here</strong>
+          <span data-i18n="dropSubtitle">or use the Import GPX button</span>
         </div>
-        <div class="file-mode-alert" role="status">
-          Abra pelo servidor local para ativar upload e 3D: <strong>http://localhost:5173</strong>
+        <div class="file-mode-alert" role="status" data-i18n-html="fileModeAlert">
+          Open through the local server to enable upload and 3D: <strong>http://localhost:5173</strong>
         </div>
       </section>
 
-      <aside class="control-panel" aria-label="Controles do modelo GPX">
+      <aside class="control-panel" aria-label="GPX model controls" data-i18n-aria-label="controlsAria">
         <div class="brand-row">
           <div>
             <p class="eyebrow">GPX STL Studio</p>
-            <h1>Modelo 3D da sua corrida</h1>
+            <h1 data-i18n="headline">Your run as a 3D model</h1>
           </div>
-          <button class="icon-button" id="resetCamera" type="button" aria-label="Centralizar câmera">
+          <div class="header-tools">
+            <div class="language-switcher" aria-label="Language" data-i18n-aria-label="languageAria">
+              <button class="language-button is-active" type="button" data-lang="en" aria-label="English">🇺🇸</button>
+              <button class="language-button" type="button" data-lang="pt" aria-label="Português">🇧🇷</button>
+              <button class="language-button" type="button" data-lang="es" aria-label="Español">🇪🇸</button>
+            </div>
+            <button class="icon-button" id="resetCamera" type="button" aria-label="Center camera" data-i18n-aria-label="resetCameraAria">
             <span aria-hidden="true">⌂</span>
-          </button>
+            </button>
+          </div>
         </div>
 
         <div class="actions">
-          <label class="primary-button upload-button" id="importButton" for="fileInput" role="button" tabindex="0">Importar GPX</label>
-          <button class="primary-button" id="exportStlButton" type="button">Exportar STL</button>
-          <button class="primary-button" id="export3mfButton" type="button">Exportar 3MF</button>
+          <label class="primary-button upload-button" id="importButton" for="fileInput" role="button" tabindex="0" data-i18n="importGpx">Import GPX</label>
+          <button class="primary-button" id="exportStlButton" type="button" data-i18n="exportStl">Export STL</button>
+          <button class="primary-button" id="export3mfButton" type="button" data-i18n="export3mf">Export 3MF</button>
           <input id="fileInput" class="file-input" type="file" accept=".gpx,application/gpx+xml,text/xml" />
         </div>
 
-        <dl class="stats" aria-label="Informações do percurso">
+        <dl class="stats" aria-label="Route information" data-i18n-aria-label="statsAria">
           <div>
-            <dt>Pontos</dt>
+            <dt data-i18n="points">Points</dt>
             <dd id="pointCount">0</dd>
           </div>
           <div>
-            <dt>Elevação</dt>
+            <dt data-i18n="elevation">Elevation</dt>
             <dd id="elevationRange">0 m</dd>
           </div>
           <div>
-            <dt>Distância</dt>
+            <dt data-i18n="distance">Distance</dt>
             <dd id="distanceTotal">0 km</dd>
           </div>
         </dl>
 
         <label class="field-row title-field">
-          <span class="label-title">Título</span>
-          <input id="titleInput" type="text" value="Maratona" placeholder="Maratona" maxlength="42" />
+          <span class="label-title" data-i18n="title">Title</span>
+          <input id="titleInput" type="text" value="Marathon" placeholder="Marathon" data-i18n-placeholder="titlePlaceholder" maxlength="42" />
         </label>
 
-        <fieldset class="subtitle-options" aria-label="Informações no modelo">
-          <legend>Informações no modelo</legend>
+        <fieldset class="subtitle-options" aria-label="Information on the model" data-i18n-aria-label="modelInfoAria">
+          <legend data-i18n="modelInfo">Information on the model</legend>
           <label>
             <input id="subtitleDistance" type="checkbox" checked />
-            <span>Distância</span>
+            <span data-i18n="distance">Distance</span>
           </label>
           <label>
             <input id="subtitleTime" type="checkbox" checked />
-            <span>Tempo</span>
+            <span data-i18n="time">Time</span>
           </label>
           <label>
             <input id="subtitlePace" type="checkbox" checked />
-            <span>Pace</span>
+            <span data-i18n="pace">Pace</span>
           </label>
           <div class="subtitle-values">
             <label>
-              <span>Distância</span>
+              <span data-i18n="distance">Distance</span>
               <input id="distanceText" type="text" placeholder="42.20 km" maxlength="16" />
             </label>
             <label>
-              <span>Tempo</span>
+              <span data-i18n="time">Time</span>
               <input id="timeText" type="text" placeholder="3:45:00" maxlength="16" />
             </label>
             <label>
-              <span>Pace</span>
+              <span data-i18n="pace">Pace</span>
               <input id="paceText" type="text" placeholder="5:20 /km" maxlength="16" />
             </label>
           </div>
         </fieldset>
 
         <label class="range-row">
-          <span class="label-title">Tamanho da fonte</span>
+          <span class="label-title" data-i18n="fontSize">Font size</span>
           <input id="fontSize" type="range" min="2" max="9" step="0.25" value="4" />
           <output id="fontSizeOut">4</output>
         </label>
 
         <label class="range-row">
-          <span class="label-title">Rotação do mapa</span>
+          <span class="label-title" data-i18n="mapRotation">Map rotation</span>
           <input id="mapRotation" type="range" min="-180" max="180" step="1" value="-109" />
           <output id="mapRotationOut">-109</output>
         </label>
 
         <label class="range-row">
-          <span class="label-title">Corte do trajeto</span>
+          <span class="label-title" data-i18n="routeTrim">Route trim</span>
           <input id="truncate" type="range" min="10" max="100" step="1" value="100" />
           <output id="truncateOut">100</output>
         </label>
 
-        <fieldset class="base-shape-options" aria-label="Formato da base">
-          <legend>Formato da base</legend>
+        <fieldset class="base-shape-options" aria-label="Base shape" data-i18n-aria-label="baseShapeAria">
+          <legend data-i18n="baseShape">Base shape</legend>
           <label>
             <input type="radio" name="baseShape" value="square" checked />
-            <span>Quadrada</span>
+            <span data-i18n="square">Square</span>
           </label>
           <label>
             <input type="radio" name="baseShape" value="circle" />
-            <span>Redonda</span>
+            <span data-i18n="round">Round</span>
           </label>
           <label>
             <input type="radio" name="baseShape" value="hexagon" />
-            <span>Hexagonal</span>
+            <span data-i18n="hexagonal">Hexagonal</span>
           </label>
         </fieldset>
 
         <label class="range-row">
-          <span class="label-title">Largura da base</span>
+          <span class="label-title" data-i18n="baseWidth">Base width</span>
           <input id="baseWidth" type="range" min="40" max="120" step="1" value="72" />
           <output id="baseWidthOut">72</output>
         </label>
 
         <label class="range-row">
-          <span class="label-title">Espessura da base</span>
+          <span class="label-title" data-i18n="baseThickness">Base thickness</span>
           <input id="baseThickness" type="range" min="1" max="8" step="0.5" value="3" />
           <output id="baseThicknessOut">3</output>
         </label>
 
         <label class="range-row">
-          <span class="label-title">Altura máxima do trajeto</span>
+          <span class="label-title" data-i18n="maxRouteHeight">Max route height</span>
           <input id="trackHeight" type="range" min="4" max="40" step="1" value="20" />
           <output id="trackHeightOut">20</output>
         </label>
 
         <label class="range-row">
-          <span class="label-title">Largura do trajeto</span>
+          <span class="label-title" data-i18n="routeWidth">Route width</span>
           <input id="trackWidth" type="range" min="1" max="5" step="0.25" value="2.25" />
           <output id="trackWidthOut">2.25</output>
         </label>
 
         <div class="color-grid">
           <label>
-            <span>Cor da base</span>
+            <span data-i18n="baseColor">Base color</span>
             <input id="baseColor" type="color" value="#11100b" />
           </label>
           <label>
-            <span>Cor do trajeto</span>
+            <span data-i18n="routeColor">Route color</span>
             <input id="trackColor" type="color" value="#ff4f0a" />
           </label>
           <label>
-            <span>Cor do texto</span>
+            <span data-i18n="textColor">Text color</span>
             <input id="textColor" type="color" value="#ffffff" />
           </label>
         </div>
       </aside>
     </main>
 
-    <script type="module" src="./app.js?v=28"></script>
+    <script type="module" src="./app.js?v=29"></script>
   </body>
 </html>

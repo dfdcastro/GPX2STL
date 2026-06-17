@@ -5,7 +5,7 @@ import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
 
 const sampleGpx = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="GPX STL Studio">
-  <trk><name>Maratona</name><trkseg>
+  <trk><name>Marathon</name><trkseg>
     <trkpt lat="-22.725" lon="-47.650"><ele>538</ele><time>2026-06-16T10:00:00Z</time></trkpt>
     <trkpt lat="-22.722" lon="-47.646"><ele>545</ele><time>2026-06-16T10:06:00Z</time></trkpt>
     <trkpt lat="-22.719" lon="-47.642"><ele>552</ele><time>2026-06-16T10:12:00Z</time></trkpt>
@@ -41,7 +41,158 @@ const state = {
   font: null,
   model: null,
   stats: { distanceKm: 0, durationSeconds: 0, minEle: 0, maxEle: 0 },
+  language: "en",
 };
+
+const languages = {
+  en: {
+    htmlLang: "en",
+    viewerAria: "3D model preview",
+    dropTitle: "Drop a GPX here",
+    dropSubtitle: "or use the Import GPX button",
+    fileModeAlert: () => `Open through the local server to enable upload and 3D: <strong>${serverUrl()}</strong>`,
+    controlsAria: "GPX model controls",
+    headline: "Your run as a 3D model",
+    languageAria: "Language",
+    resetCameraAria: "Center camera",
+    importGpx: "Import GPX",
+    exportStl: "Export STL",
+    export3mf: "Export 3MF",
+    statsAria: "Route information",
+    points: "Points",
+    elevation: "Elevation",
+    distance: "Distance",
+    title: "Title",
+    titlePlaceholder: "Marathon",
+    modelInfoAria: "Information on the model",
+    modelInfo: "Information on the model",
+    time: "Time",
+    pace: "Pace",
+    fontSize: "Font size",
+    mapRotation: "Map rotation",
+    routeTrim: "Route trim",
+    baseShapeAria: "Base shape",
+    baseShape: "Base shape",
+    square: "Square",
+    round: "Round",
+    hexagonal: "Hexagonal",
+    baseWidth: "Base width",
+    baseThickness: "Base thickness",
+    maxRouteHeight: "Max route height",
+    routeWidth: "Route width",
+    baseColor: "Base color",
+    routeColor: "Route color",
+    textColor: "Text color",
+    defaultTitle: "My run",
+    sampleTitle: "Marathon",
+    invalidGpx: "Invalid GPX file.",
+    tooFewPoints: "The GPX must have at least two points.",
+    readGpxError: "Could not read the GPX.",
+    exportBase: "Base",
+    exportTrack: "Route",
+    exportText: "Text",
+  },
+  pt: {
+    htmlLang: "pt-BR",
+    viewerAria: "Visualização 3D do modelo",
+    dropTitle: "Solte um GPX aqui",
+    dropSubtitle: "ou use o botão Importar GPX",
+    fileModeAlert: () => `Abra pelo servidor local para ativar upload e 3D: <strong>${serverUrl()}</strong>`,
+    controlsAria: "Controles do modelo GPX",
+    headline: "Modelo 3D da sua corrida",
+    languageAria: "Idioma",
+    resetCameraAria: "Centralizar câmera",
+    importGpx: "Importar GPX",
+    exportStl: "Exportar STL",
+    export3mf: "Exportar 3MF",
+    statsAria: "Informações do percurso",
+    points: "Pontos",
+    elevation: "Elevação",
+    distance: "Distância",
+    title: "Título",
+    titlePlaceholder: "Maratona",
+    modelInfoAria: "Informações no modelo",
+    modelInfo: "Informações no modelo",
+    time: "Tempo",
+    pace: "Pace",
+    fontSize: "Tamanho da fonte",
+    mapRotation: "Rotação do mapa",
+    routeTrim: "Corte do trajeto",
+    baseShapeAria: "Formato da base",
+    baseShape: "Formato da base",
+    square: "Quadrada",
+    round: "Redonda",
+    hexagonal: "Hexagonal",
+    baseWidth: "Largura da base",
+    baseThickness: "Espessura da base",
+    maxRouteHeight: "Altura máxima do trajeto",
+    routeWidth: "Largura do trajeto",
+    baseColor: "Cor da base",
+    routeColor: "Cor do trajeto",
+    textColor: "Cor do texto",
+    defaultTitle: "Minha corrida",
+    sampleTitle: "Maratona",
+    invalidGpx: "Arquivo GPX inválido.",
+    tooFewPoints: "O GPX precisa ter ao menos dois pontos.",
+    readGpxError: "Não foi possível ler o GPX.",
+    exportBase: "Base",
+    exportTrack: "Trajeto",
+    exportText: "Texto",
+  },
+  es: {
+    htmlLang: "es",
+    viewerAria: "Vista previa 3D del modelo",
+    dropTitle: "Suelta un GPX aquí",
+    dropSubtitle: "o usa el botón Importar GPX",
+    fileModeAlert: () => `Abre desde el servidor local para activar carga y 3D: <strong>${serverUrl()}</strong>`,
+    controlsAria: "Controles del modelo GPX",
+    headline: "Tu carrera como modelo 3D",
+    languageAria: "Idioma",
+    resetCameraAria: "Centrar cámara",
+    importGpx: "Importar GPX",
+    exportStl: "Exportar STL",
+    export3mf: "Exportar 3MF",
+    statsAria: "Información de la ruta",
+    points: "Puntos",
+    elevation: "Elevación",
+    distance: "Distancia",
+    title: "Título",
+    titlePlaceholder: "Maratón",
+    modelInfoAria: "Información en el modelo",
+    modelInfo: "Información en el modelo",
+    time: "Tiempo",
+    pace: "Ritmo",
+    fontSize: "Tamaño de fuente",
+    mapRotation: "Rotación del mapa",
+    routeTrim: "Recorte de ruta",
+    baseShapeAria: "Forma de la base",
+    baseShape: "Forma de la base",
+    square: "Cuadrada",
+    round: "Redonda",
+    hexagonal: "Hexagonal",
+    baseWidth: "Ancho de base",
+    baseThickness: "Grosor de base",
+    maxRouteHeight: "Altura máxima de ruta",
+    routeWidth: "Ancho de ruta",
+    baseColor: "Color de base",
+    routeColor: "Color de ruta",
+    textColor: "Color de texto",
+    defaultTitle: "Mi carrera",
+    sampleTitle: "Maratón",
+    invalidGpx: "Archivo GPX inválido.",
+    tooFewPoints: "El GPX debe tener al menos dos puntos.",
+    readGpxError: "No se pudo leer el GPX.",
+    exportBase: "Base",
+    exportTrack: "Ruta",
+    exportText: "Texto",
+  },
+};
+
+const initialTitleValues = Object.values(languages).flatMap((language) => [
+  language.defaultTitle,
+  language.sampleTitle,
+  language.titlePlaceholder,
+]);
 
 const els = {
   viewer: document.querySelector("#viewer"),
@@ -72,7 +223,62 @@ const els = {
   pointCount: document.querySelector("#pointCount"),
   elevationRange: document.querySelector("#elevationRange"),
   distanceTotal: document.querySelector("#distanceTotal"),
+  languageButtons: document.querySelectorAll("[data-lang]"),
 };
+
+state.language = savedLanguage();
+
+function savedLanguage() {
+  const saved = localStorage.getItem("gpx-stl-language");
+  return Object.hasOwn(languages, saved) ? saved : "en";
+}
+
+function serverUrl() {
+  return window.location.protocol.startsWith("http") ? window.location.origin : "http://localhost:5173";
+}
+
+function t(key) {
+  const value = languages[state.language][key] ?? languages.en[key] ?? key;
+  return typeof value === "function" ? value() : value;
+}
+
+function applyLanguage(language = state.language) {
+  if (!Object.hasOwn(languages, language)) return;
+  const previousLanguage = state.language;
+  state.language = language;
+  localStorage.setItem("gpx-stl-language", language);
+  document.documentElement.lang = t("htmlLang");
+
+  for (const element of document.querySelectorAll("[data-i18n]")) {
+    element.textContent = t(element.dataset.i18n);
+  }
+  for (const element of document.querySelectorAll("[data-i18n-html]")) {
+    element.innerHTML = t(element.dataset.i18nHtml);
+  }
+  for (const element of document.querySelectorAll("[data-i18n-placeholder]")) {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  }
+  for (const element of document.querySelectorAll("[data-i18n-aria-label]")) {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  }
+
+  for (const button of els.languageButtons) {
+    const isActive = button.dataset.lang === language;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
+  const previousTitles = [
+    languages[previousLanguage].defaultTitle,
+    languages[previousLanguage].sampleTitle,
+    languages[previousLanguage].titlePlaceholder,
+    ...initialTitleValues,
+  ];
+  if (previousTitles.includes(els.titleInput.value.trim())) {
+    els.titleInput.value = t("sampleTitle");
+    rebuildModel();
+  }
+}
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x16181b);
@@ -117,7 +323,7 @@ new FontLoader().load(
 
 function currentOptions() {
   return {
-    title: els.titleInput.value.trim() || "Minha corrida",
+    title: els.titleInput.value.trim() || t("defaultTitle"),
     subtitle: subtitleText(),
     fontSize: Number(els.fontSize.value),
     mapRotation: THREE.MathUtils.degToRad(Number(els.mapRotation.value)),
@@ -169,7 +375,7 @@ function formatPace(secondsPerKm) {
 function parseGpx(text) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   const parserError = doc.querySelector("parsererror");
-  if (parserError) throw new Error("Arquivo GPX invalido.");
+  if (parserError) throw new Error(t("invalidGpx"));
 
   const title =
     doc.querySelector("trk > name")?.textContent?.trim() ||
@@ -187,7 +393,7 @@ function parseGpx(text) {
     }))
     .filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lon));
 
-  if (points.length < 2) throw new Error("O GPX precisa ter ao menos dois pontos.");
+  if (points.length < 2) throw new Error(t("tooFewPoints"));
   return { points, title };
 }
 
@@ -585,9 +791,9 @@ function downloadBlob(blob, filename) {
 
 function collectExportMeshes(model) {
   const buckets = {
-    base: { id: 1, name: "Base", vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
-    track: { id: 2, name: "Trajeto", vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
-    text: { id: 3, name: "Texto", vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
+    base: { id: 1, name: t("exportBase"), vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
+    track: { id: 2, name: t("exportTrack"), vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
+    text: { id: 3, name: t("exportText"), vertices: [], triangles: [], vertexIndex: new Map(), triangleIndex: new Set() },
   };
 
   model.traverse((child) => {
@@ -671,7 +877,7 @@ ${mesh.triangles.map(([v1, v2, v3]) => `          <triangle v1="${v1}" v2="${v2}
 
   const buildItems = meshes.map((mesh) => `    <item objectid="${mesh.id}"/>`).join("\n");
   return `<?xml version="1.0" encoding="UTF-8"?>
-<model unit="millimeter" xml:lang="pt-BR" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
+<model unit="millimeter" xml:lang="${t("htmlLang")}" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02">
   <metadata name="Title">${escapeXml(currentOptions().title)}</metadata>
   <resources>
 ${objects}
@@ -883,13 +1089,19 @@ els.exportStlButton.addEventListener("click", exportStl);
 els.export3mfButton.addEventListener("click", export3mf);
 els.resetCamera.addEventListener("click", frameCamera);
 
+for (const button of els.languageButtons) {
+  button.addEventListener("click", () => {
+    applyLanguage(button.dataset.lang);
+  });
+}
+
 els.fileInput.addEventListener("change", async (event) => {
   const [file] = event.target.files;
   if (!file) return;
   try {
     await loadGpxText(await file.text());
   } catch (error) {
-    window.alert(error.message || "Nao foi possivel ler o GPX.");
+    window.alert(error.message || t("readGpxError"));
   } finally {
     event.target.value = "";
   }
@@ -915,13 +1127,15 @@ window.addEventListener("drop", async (event) => {
   try {
     await loadGpxText(await file.text());
   } catch (error) {
-    window.alert(error.message || "Nao foi possivel ler o GPX.");
+    window.alert(error.message || t("readGpxError"));
   }
 });
 
 window.addEventListener("resize", resizeRenderer);
 
+applyLanguage();
 resizeRenderer();
 loadGpxText(sampleGpx);
+applyLanguage();
 frameCamera();
 animate();
