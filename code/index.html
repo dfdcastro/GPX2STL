@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPX STL Studio</title>
+    <link rel="stylesheet" href="./styles.css?v=8" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        if (window.location.protocol === "file:") {
+          document.body.classList.add("is-file-mode");
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="viewport-panel">
+        <div id="viewer" class="viewer" aria-label="Visualização 3D do modelo"></div>
+        <div class="drop-zone" id="dropZone">
+          <strong>Solte um GPX aqui</strong>
+          <span>ou use o botão Importar GPX</span>
+        </div>
+        <div class="file-mode-alert" role="status">
+          Abra pelo servidor local para ativar upload e 3D: <strong>http://localhost:5173</strong>
+        </div>
+      </section>
+
+      <aside class="control-panel" aria-label="Controles do modelo GPX">
+        <div class="brand-row">
+          <div>
+            <p class="eyebrow">GPX STL Studio</p>
+            <h1>Modelo 3D da sua corrida</h1>
+          </div>
+          <button class="icon-button" id="resetCamera" type="button" aria-label="Centralizar câmera">
+            <span aria-hidden="true">⌂</span>
+          </button>
+        </div>
+
+        <div class="actions">
+          <label class="primary-button upload-button" id="importButton" for="fileInput" role="button" tabindex="0">Importar GPX</label>
+          <button class="primary-button" id="exportStlButton" type="button">Exportar STL</button>
+          <button class="primary-button" id="export3mfButton" type="button">Exportar 3MF</button>
+          <input id="fileInput" class="file-input" type="file" accept=".gpx,application/gpx+xml,text/xml" />
+        </div>
+
+        <dl class="stats" aria-label="Informações do percurso">
+          <div>
+            <dt>Pontos</dt>
+            <dd id="pointCount">0</dd>
+          </div>
+          <div>
+            <dt>Elevação</dt>
+            <dd id="elevationRange">0 m</dd>
+          </div>
+          <div>
+            <dt>Distância</dt>
+            <dd id="distanceTotal">0 km</dd>
+          </div>
+        </dl>
+
+        <label class="field-row title-field">
+          <span class="label-title">Título</span>
+          <input id="titleInput" type="text" value="Maratona" placeholder="Maratona" maxlength="42" />
+        </label>
+
+        <fieldset class="subtitle-options" aria-label="Informações no modelo">
+          <legend>Informações no modelo</legend>
+          <label>
+            <input id="subtitleDistance" type="checkbox" checked />
+            <span>Distância</span>
+          </label>
+          <label>
+            <input id="subtitleTime" type="checkbox" checked />
+            <span>Tempo</span>
+          </label>
+          <label>
+            <input id="subtitlePace" type="checkbox" checked />
+            <span>Pace</span>
+          </label>
+          <div class="subtitle-values">
+            <label>
+              <span>Distância</span>
+              <input id="distanceText" type="text" placeholder="42.20 km" maxlength="16" />
+            </label>
+            <label>
+              <span>Tempo</span>
+              <input id="timeText" type="text" placeholder="3:45:00" maxlength="16" />
+            </label>
+            <label>
+              <span>Pace</span>
+              <input id="paceText" type="text" placeholder="5:20 /km" maxlength="16" />
+            </label>
+          </div>
+        </fieldset>
+
+        <label class="range-row">
+          <span class="label-title">Tamanho da fonte</span>
+          <input id="fontSize" type="range" min="2" max="9" step="0.25" value="4" />
+          <output id="fontSizeOut">4</output>
+        </label>
+
+        <label class="range-row">
+          <span class="label-title">Rotação do mapa</span>
+          <input id="mapRotation" type="range" min="-180" max="180" step="1" value="-109" />
+          <output id="mapRotationOut">-109</output>
+        </label>
+
+        <label class="range-row">
+          <span class="label-title">Corte do trajeto</span>
+          <input id="truncate" type="range" min="10" max="100" step="1" value="100" />
+          <output id="truncateOut">100</output>
+        </label>
+
+        <fieldset class="base-shape-options" aria-label="Formato da base">
+          <legend>Formato da base</legend>
+          <label>
+            <input type="radio" name="baseShape" value="square" checked />
+            <span>Quadrada</span>
+          </label>
+          <label>
+            <input type="radio" name="baseShape" value="circle" />
+            <span>Redonda</span>
+          </label>
+          <label>
+            <input type="radio" name="baseShape" value="hexagon" />
+            <span>Hexagonal</span>
+          </label>
+        </fieldset>
+
+        <label class="range-row">
+          <span class="label-title">Largura da base</span>
+          <input id="baseWidth" type="range" min="40" max="120" step="1" value="72" />
+          <output id="baseWidthOut">72</output>
+        </label>
+
+        <label class="range-row">
+          <span class="label-title">Espessura da base</span>
+          <input id="baseThickness" type="range" min="1" max="8" step="0.5" value="3" />
+          <output id="baseThicknessOut">3</output>
+        </label>
+
+        <label class="range-row">
+          <span class="label-title">Altura máxima do trajeto</span>
+          <input id="trackHeight" type="range" min="4" max="40" step="1" value="20" />
+          <output id="trackHeightOut">20</output>
+        </label>
+
+        <label class="range-row">
+          <span class="label-title">Largura do trajeto</span>
+          <input id="trackWidth" type="range" min="1" max="5" step="0.25" value="2.25" />
+          <output id="trackWidthOut">2.25</output>
+        </label>
+
+        <div class="color-grid">
+          <label>
+            <span>Cor da base</span>
+            <input id="baseColor" type="color" value="#11100b" />
+          </label>
+          <label>
+            <span>Cor do trajeto</span>
+            <input id="trackColor" type="color" value="#ff4f0a" />
+          </label>
+          <label>
+            <span>Cor do texto</span>
+            <input id="textColor" type="color" value="#ffffff" />
+          </label>
+        </div>
+      </aside>
+    </main>
+
+    <script type="module" src="./app.js?v=28"></script>
+  </body>
+</html>
