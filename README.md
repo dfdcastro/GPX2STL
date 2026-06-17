@@ -56,6 +56,14 @@ Then open:
 http://localhost:5173/
 ```
 
+The npm scripts use port `5173` by default. If that port is already in use, run the static server on another port, for example:
+
+```bash
+python3 -m http.server 5174
+```
+
+Then open `http://localhost:5174/`.
+
 You can also run:
 
 ```bash
@@ -156,6 +164,14 @@ Depois acesse:
 ```text
 http://localhost:5173/
 ```
+
+Os scripts do npm usam a porta `5173` por padrão. Se essa porta já estiver em uso, rode o servidor estático em outra porta, por exemplo:
+
+```bash
+python3 -m http.server 5174
+```
+
+Depois acesse `http://localhost:5174/`.
 
 Também é possível rodar:
 
