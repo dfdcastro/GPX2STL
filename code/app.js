@@ -322,9 +322,11 @@ new FontLoader().load(
 );
 
 function currentOptions() {
+  const subtitleParts = subtitleTextParts();
   return {
     title: els.titleInput.value.trim() || t("defaultTitle"),
-    subtitle: subtitleText(),
+    subtitle: subtitleParts.join("   "),
+    subtitleParts,
     fontSize: Number(els.fontSize.value),
     mapRotation: THREE.MathUtils.degToRad(Number(els.mapRotation.value)),
     truncate: Number(els.truncate.value) / 100,
@@ -340,6 +342,10 @@ function currentOptions() {
 }
 
 function subtitleText() {
+  return subtitleTextParts().join("   ");
+}
+
+function subtitleTextParts() {
   const parts = [];
   const distance = els.distanceText.value.trim();
   const time = els.timeText.value.trim();
@@ -353,7 +359,7 @@ function subtitleText() {
   if (els.subtitlePace.checked && pace) {
     parts.push(pace);
   }
-  return parts.join(" | ");
+  return parts;
 }
 
 function formatDuration(totalSeconds) {
@@ -594,18 +600,43 @@ function makeText(options) {
   const group = new THREE.Group();
   const material = new THREE.MeshStandardMaterial({ color: options.textColor, roughness: 0.48 });
   const textLayout = textLayoutForBase(options);
-  const titleMesh = makeTextLine(options.title, options.fontSize, 0.85, textLayout.titleMaxWidth, material);
-  titleMesh.rotation.x = -Math.PI / 2;
-  titleMesh.position.set(0, options.baseThickness / 2 + 0.15, options.subtitle ? textLayout.titleZWithSubtitle : textLayout.titleZ);
-  titleMesh.name = "title-text";
-  group.add(titleMesh);
+  const titleLines = splitTextLines(options.title, options.fontSize, textLayout.titleMaxWidth, 2);
+  const titleLineGap = options.fontSize * 1.05;
+  const titleCenterZ = options.subtitle ? textLayout.titleZWithSubtitle : textLayout.titleZ;
 
-  if (options.subtitle) {
-    const subtitleMesh = makeTextLine(options.subtitle, options.fontSize * 0.58, 1, textLayout.subtitleMaxWidth, material);
-    subtitleMesh.rotation.x = -Math.PI / 2;
-    subtitleMesh.position.set(0, options.baseThickness / 2 + 0.12, textLayout.subtitleZ);
-    subtitleMesh.name = "subtitle-text";
-    group.add(subtitleMesh);
+  titleLines.forEach((line, index) => {
+    const titleMesh = makeTextLine(line, options.fontSize, 1.1, textLayout.titleMaxWidth, material);
+    titleMesh.rotation.x = -Math.PI / 2;
+    titleMesh.position.set(
+      0,
+      options.baseThickness / 2 + 0.15,
+      titleCenterZ + (index - (titleLines.length - 1) / 2) * titleLineGap,
+    );
+    titleMesh.name = "title-text";
+    group.add(titleMesh);
+  });
+
+  if (options.subtitleParts.length > 0) {
+    const subtitleSize = options.fontSize * 0.82;
+    const subtitleDepth = 1.25;
+    const gap = options.fontSize * 0.9;
+    const partMaxWidth =
+      (textLayout.subtitleMaxWidth - gap * Math.max(0, options.subtitleParts.length - 1)) / options.subtitleParts.length;
+    const subtitleMeshes = options.subtitleParts.map((part) =>
+      makeTextLine(part, subtitleSize, subtitleDepth, Math.max(partMaxWidth, subtitleSize * 3), material),
+    );
+    const widths = subtitleMeshes.map((mesh) => mesh.userData.textWidth * mesh.scale.x);
+    const totalWidth = widths.reduce((sum, width) => sum + width, 0) + gap * Math.max(0, widths.length - 1);
+    let cursorX = -totalWidth / 2;
+
+    subtitleMeshes.forEach((subtitleMesh, index) => {
+      const width = widths[index];
+      subtitleMesh.rotation.x = -Math.PI / 2;
+      subtitleMesh.position.set(cursorX + width / 2, options.baseThickness / 2 + 0.12, textLayout.subtitleZ);
+      subtitleMesh.name = "subtitle-text";
+      group.add(subtitleMesh);
+      cursorX += width + gap;
+    });
   }
 
   return group;
@@ -623,7 +654,7 @@ function modelLayoutForBase(options) {
       trackZ: -options.baseWidth * 0.1,
       text: {
         titleMaxWidth: options.baseWidth * 0.82,
-        subtitleMaxWidth: options.baseWidth * 0.86,
+        subtitleMaxWidth: options.baseWidth * 0.96,
         titleZ: options.baseWidth * 0.43,
         titleZWithSubtitle: options.baseWidth * 0.385,
         subtitleZ: options.baseWidth * 0.47,
@@ -638,7 +669,7 @@ function modelLayoutForBase(options) {
     trackZ: -options.baseWidth * 0.17,
     text: {
       titleMaxWidth: options.baseWidth * 0.62,
-      subtitleMaxWidth: options.baseWidth * 0.66,
+      subtitleMaxWidth: options.baseWidth * 0.86,
       titleZ: options.baseWidth * textZ,
       titleZWithSubtitle: options.baseWidth * (textZ - 0.04),
       subtitleZ: options.baseWidth * (textZ + 0.055),
@@ -646,16 +677,49 @@ function modelLayoutForBase(options) {
   };
 }
 
+function splitTextLines(text, size, maxWidth, maxLines) {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= 1 || measureTextWidth(text, size) <= maxWidth) return [text];
+
+  const lines = [];
+  let current = "";
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (current && lines.length < maxLines - 1 && measureTextWidth(candidate, size) > maxWidth) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  }
+  if (current) lines.push(current);
+
+  if (lines.length <= maxLines) return lines;
+  return [lines.slice(0, maxLines - 1).join(" "), lines.slice(maxLines - 1).join(" ")];
+}
+
+function measureTextWidth(text, size) {
+  const geometry = new TextGeometry(text, {
+    font: state.font,
+    size,
+    depth: 1,
+    curveSegments: 4,
+    bevelEnabled: false,
+  });
+  geometry.computeBoundingBox();
+  const box = geometry.boundingBox;
+  const width = box.max.x - box.min.x;
+  geometry.dispose();
+  return width;
+}
+
 function makeTextLine(text, size, depth, maxWidth, material) {
   const geometry = new TextGeometry(text, {
     font: state.font,
     size,
     depth,
-    curveSegments: 5,
-    bevelEnabled: true,
-    bevelThickness: 0.04,
-    bevelSize: 0.04,
-    bevelSegments: 1,
+    curveSegments: 8,
+    bevelEnabled: false,
   });
   geometry.computeBoundingBox();
   const box = geometry.boundingBox;
@@ -665,6 +729,7 @@ function makeTextLine(text, size, depth, maxWidth, material) {
 
   const mesh = new THREE.Mesh(geometry, material);
   mesh.scale.set(scale, scale, 1);
+  mesh.userData.textWidth = textWidth;
   mesh.castShadow = true;
   return mesh;
 }
