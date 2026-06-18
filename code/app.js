@@ -372,6 +372,11 @@ function formatPace(secondsPerKm) {
   return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
+function formatPaceLabel(secondsPerKm) {
+  const [minutes, seconds] = formatPace(secondsPerKm).split(":");
+  return `${minutes}'${seconds}"`;
+}
+
 function parseGpx(text) {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   const parserError = doc.querySelector("parsererror");
@@ -596,7 +601,7 @@ function makeText(options) {
   group.add(titleMesh);
 
   if (options.subtitle) {
-    const subtitleMesh = makeTextLine(options.subtitle, options.fontSize * 0.42, 0.55, textLayout.subtitleMaxWidth, material);
+    const subtitleMesh = makeTextLine(options.subtitle, options.fontSize * 0.58, 1, textLayout.subtitleMaxWidth, material);
     subtitleMesh.rotation.x = -Math.PI / 2;
     subtitleMesh.position.set(0, options.baseThickness / 2 + 0.12, textLayout.subtitleZ);
     subtitleMesh.name = "subtitle-text";
@@ -618,7 +623,7 @@ function modelLayoutForBase(options) {
       trackZ: -options.baseWidth * 0.1,
       text: {
         titleMaxWidth: options.baseWidth * 0.82,
-        subtitleMaxWidth: options.baseWidth * 0.78,
+        subtitleMaxWidth: options.baseWidth * 0.86,
         titleZ: options.baseWidth * 0.43,
         titleZWithSubtitle: options.baseWidth * 0.385,
         subtitleZ: options.baseWidth * 0.47,
@@ -633,7 +638,7 @@ function modelLayoutForBase(options) {
     trackZ: -options.baseWidth * 0.17,
     text: {
       titleMaxWidth: options.baseWidth * 0.62,
-      subtitleMaxWidth: options.baseWidth * 0.58,
+      subtitleMaxWidth: options.baseWidth * 0.66,
       titleZ: options.baseWidth * textZ,
       titleZWithSubtitle: options.baseWidth * (textZ - 0.04),
       subtitleZ: options.baseWidth * (textZ + 0.055),
@@ -659,7 +664,7 @@ function makeTextLine(text, size, depth, maxWidth, material) {
   geometry.translate(-textWidth / 2, -box.min.y, 0);
 
   const mesh = new THREE.Mesh(geometry, material);
-  mesh.scale.setScalar(scale);
+  mesh.scale.set(scale, scale, 1);
   mesh.castShadow = true;
   return mesh;
 }
@@ -709,7 +714,7 @@ function updateEditableSubtitleFields() {
   els.timeText.value = state.stats.durationSeconds > 0 ? formatDuration(state.stats.durationSeconds) : "";
   els.paceText.value =
     state.stats.durationSeconds > 0 && state.stats.distanceKm > 0
-      ? `${formatPace(state.stats.durationSeconds / state.stats.distanceKm)} /km`
+      ? formatPaceLabel(state.stats.durationSeconds / state.stats.distanceKm)
       : "";
 }
 
